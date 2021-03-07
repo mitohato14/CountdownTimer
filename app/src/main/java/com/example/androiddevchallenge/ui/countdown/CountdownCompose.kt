@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -54,9 +55,23 @@ fun CountdownTimerCompose() {
     val viewModel: CountdownViewModel = viewModel()
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (timerSet, controller) = createRefs()
+        val (timerSet, circular, controller) = createRefs()
 
         val countStarted: Boolean by viewModel.countStarted.observeAsState(initial = false)
+
+        val timeProgress by viewModel.timeProgress.observeAsState()
+
+        CircularProgressIndicator(
+            progress = timeProgress ?: 0f,
+            modifier = Modifier
+                .constrainAs(circular) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                .size(250.dp)
+        )
 
         if (countStarted) {
             val minute by viewModel.remainingMinute.observeAsState()

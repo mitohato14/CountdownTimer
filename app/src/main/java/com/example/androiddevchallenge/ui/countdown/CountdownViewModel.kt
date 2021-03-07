@@ -56,6 +56,10 @@ class CountdownViewModel : ViewModel() {
 
     private var isPaused = false
 
+    private val _timeProgress: MutableLiveData<Float> = MutableLiveData(0f)
+    val timeProgress: LiveData<Float>
+        get() = _timeProgress
+
     fun onSettingMinuteChange(minute: String) {
         val newMinute = minute.toInt(default = 0).coerceIn(0..99).toString()
         _settingMinute.value = if (newMinute == "0") "" else newMinute
@@ -75,6 +79,7 @@ class CountdownViewModel : ViewModel() {
         if (snapshot) {
             restartTimer()
         } else {
+            _timeProgress.value = 1f
             setRemainingTime()
             startCountdownTimer()
         }
@@ -84,8 +89,7 @@ class CountdownViewModel : ViewModel() {
         _countStarted.value = false
         isPaused = false
         resetTime()
-        _settingMinute.value = remainingMinute.value
-        _settingSecond.value = remainingSecond.value
+        _timeProgress.value = 0f
         countdownJob?.cancel()
     }
 
@@ -111,8 +115,8 @@ class CountdownViewModel : ViewModel() {
 
     private fun resetTime() {
         remainingTime.value = settingTime
-        _settingMinute.value = (settingTime / 60).toString()
-        _settingSecond.value = (settingTime % 60).toString()
+        _settingMinute.value = remainingMinute.value
+        _settingSecond.value = remainingSecond.value
     }
 
     private fun startCountdownTimer() {
@@ -125,8 +129,12 @@ class CountdownViewModel : ViewModel() {
                     break
                 }
                 delay(1000L)
-                remainingTime.value = remainingTimeSnap - 1
+                val newRemainingTime = remainingTimeSnap - 1
+                remainingTime.value = newRemainingTime
+                _timeProgress.value = newRemainingTime.toFloat() / settingTime.toFloat()
             }
+
+            resetTime()
         }
     }
 }
