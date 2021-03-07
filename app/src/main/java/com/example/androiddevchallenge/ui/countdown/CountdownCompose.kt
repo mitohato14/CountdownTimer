@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.ui.countdown
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ProgressIndicatorDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -61,8 +63,13 @@ fun CountdownTimerCompose() {
 
         val timeProgress by viewModel.timeProgress.observeAsState()
 
+        val animatedProgress by animateFloatAsState(
+            targetValue = timeProgress ?: 1f,
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+        )
+
         CircularProgressIndicator(
-            progress = timeProgress ?: 0f,
+            progress = animatedProgress,
             modifier = Modifier
                 .constrainAs(circular) {
                     top.linkTo(parent.top)
